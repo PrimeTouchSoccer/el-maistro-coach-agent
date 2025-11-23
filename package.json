@@ -1,9 +1,7 @@
 {
-  "name": "el-maistro-coach-agent-vercel",
+  "name": "soccer-coach-agent",
   "version": "1.0.0",
-  "description": "Backend for El Maistro OpenAI chat agent.",
-  "main": "api/chat.js",
   "dependencies": {
-    "openai": "^4.20.1"
+    "openai": "^4.0.0"
   }
 }
