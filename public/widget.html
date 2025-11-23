@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Coach Agent Widget</title>
+    <style>
+        /* General setup: Ensure the font is readable */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Floating Bubble Button (The Trigger) */
+        #coach-agent-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #008000; /* Soccer Green */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #coach-agent-button:hover {
+            background-color: #006400;
+            transform: scale(1.05);
+        }
+
+        /* The Main Chat Window */
+        #coach-agent-chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            max-height: 80vh;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: none; /* Starts hidden */
+            flex-direction: column;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 600px) {
+            #coach-agent-chat-window {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+            }
+        }
+
+        /* Header for the chat window */
+        .chat-header {
+            background-color: #008000;
+            color: white;
+            padding: 10px 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Message Display Area */
+        #chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+            max-height: calc(80vh - 150px); /* Adjust based on form size */
+        }
+
+        /* Individual Messages */
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .user-message {
+            background-color: #e1ffc7;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+        }
+        
+        /* Loading Indicator */
+        #loading-indicator {
+            text-align: center;
+            padding: 10px;
+            font-style: italic;
+            color: #666;
+            display: none;
+        }
+
+        /* Input Form */
+        #chat-form {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        #chat-submit {
+            background-color: #ff9900; /* Accent Color */
+            color: #333; /* IMPROVED CONTRAST for WCAG AA */
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #chat-submit:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The Floating Button - Added ARIA label and state -->
+    <button id="coach-agent-button" aria-label="Toggle El Maistro Chat Window" aria-expanded="false">⚽</button>
+
+    <!-- The Chat Window - Added ARIA role, modal, and label reference -->
+    <div id="coach-agent-chat-window" role="dialog" aria-modal="true" aria-labelledby="chat-header-title">
+        <div class="chat-header" id="chat-header-title">El Maistro</div>
+        <!-- Message Area - Added ARIA live region for screen readers to announce new messages -->
+        <div id="chat-messages" aria-live="polite">
+            <div class="message bot-message">
+                **Welcome, Coach! I'm El Maistro.** I specialize in building challenging, club-level training programs for your players (U14 and below, up to U18). What topic are we training on today (e.g., "Pressing in the attacking third" or "Quick decision-making")?
+            </div>
+        </div>
+        <div id="loading-indicator">El Maistro is crafting your Premier-level program...</div>
+        <form id="chat-form">
+            <!-- Input - Added ARIA label for screen readers -->
+            <input type="text" id="chat-input" placeholder="Ask El Maistro for a training program..." aria-label="Program request input" required>
+            <button type="submit" id="chat-submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('coach-agent-chat-window');
+        const chatButton = document.getElementById('coach-agent-button');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const chatSubmit = document.getElementById('chat-submit');
+
+        // IMPORTANT: REPLACE THIS URL with your Vercel API URL after deployment
+        const API_URL = "https://[YOUR-VERCEL-DOMAIN]/api/chat"; 
+        
+        // Function to create and display a new message
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            // Use innerHTML to allow for formatted responses (like paragraphs from the AI)
+            messageDiv.innerHTML = text; 
+            chatMessages.appendChild(messageDiv);
+            // Scroll to the latest message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Toggle the chat window open/closed
+        chatButton.addEventListener('click', () => {
+            const isHidden = chatWindow.style.display === 'flex';
+            
+            chatWindow.style.display = isHidden ? 'none' : 'flex';
+            
+            // 1. Update ARIA state on the button
+            chatButton.setAttribute('aria-expanded', !isHidden);
+            
+            if (!isHidden) {
+                // 2. Move keyboard focus to the input field immediately on open
+                chatInput.focus(); 
+            }
+        });
+
+        // Handle sending the message
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            chatInput.value = '';
+            
+            loadingIndicator.style.display = 'block';
+            chatSubmit.disabled = true;
+
+            try {
+                // Send the user message to the secure Vercel API endpoint
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                addMessage(data.reply, 'bot');
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                addMessage("I'm sorry, El Maistro couldn't connect to the server. Please try again later.", 'bot');
+            } finally {
+                loadingIndicator.style.display = 'none';
+                chatSubmit.disabled = false;
+            }
+        });
+
+        // Initial check to handle the API URL being a placeholder
+        if (API_URL.includes('[YOUR-VERCEL-DOMAIN]')) {
+             addMessage("⚠️ **SETUP REQUIRED**: The API is currently set to a placeholder. You must update the `API_URL` in the HTML code after deploying to Vercel.", 'bot');
+        }
+
+    </script>
+</body>
+</html>
