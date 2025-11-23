@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Maistro Embedded Training Generator</title>
-    <style>
+<style>
         /* General setup: Ensure the font is readable */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
         
@@ -25,8 +19,8 @@
 
         /* Header for the chat window */
         .chat-header {
-            background-color: #034694; /* UPDATED COLOR: Blue */
-            color: #ffffff; /* Text color: White */
+            background-color: #034694; /* Blue */
+            color: #ffffff; /* White */
             padding: 15px 20px;
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
@@ -96,7 +90,7 @@
 
         #chat-submit {
             background-color: #ff9900; /* Accent Color (kept orange) */
-            color: #333; 
+            color: #333; /* IMPROVED CONTRAST for WCAG AA */
             border: none;
             padding: 10px 20px;
             border-radius: 6px;
@@ -137,7 +131,10 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const chatSubmit = document.getElementById('chat-submit');
 
-        // IMPORTANT: REPLACE THIS URL with your Vercel API URL after deployment (SAME URL as the floating widget)
+        // ***************************************************************
+        // IMPORTANT: REPLACE THE PLACEHOLDER BELOW with your Vercel API URL
+        // Example: "https://el-maistro-coach-agent-4b6e.vercel.app/api/chat"
+        // ***************************************************************
         const API_URL = "https://el-maistro-coach-agent.vercel.app/api/chat"; 
         
         // Function to create and display a new message
