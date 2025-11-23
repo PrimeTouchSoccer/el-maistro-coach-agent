@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     3. Build Character and a Growth Mindset
     4. Prioritize Safety & Age-Appropriate Physical Load
 
-';
+`;
     // Combine history with the new message for context
     const messages = [
         { role: "system", content: systemPrompt },
