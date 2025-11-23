@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Maistro Embedded Training Generator</title>
+    <style>
+        /* General setup: Ensure the font is readable */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        
+        /* The Main Embedded Chat Window - NO FIXED POSITIONING */
+        #embedded-chat-container {
+            width: 100%;
+            max-width: 800px; /* Max width for a clean look on desktop */
+            margin: 20px auto; /* Center the container on the page */
+            min-height: 600px; /* Ensure it's a large, usable chat window */
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Header for the chat window */
+        .chat-header {
+            background-color: #034694; /* UPDATED COLOR: Blue */
+            color: #ffffff; /* Text color: White */
+            padding: 15px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Message Display Area */
+        #chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+            /* Max height allows for scrolling if content is huge */
+            max-height: 500px; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Individual Messages */
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .user-message {
+            background-color: #e1ffc7;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+        }
+        
+        /* Loading Indicator */
+        #loading-indicator {
+            text-align: center;
+            padding: 10px;
+            font-style: italic;
+            color: #666;
+            display: none;
+        }
+
+        /* Input Form */
+        #chat-form {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            background-color: white;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        #chat-submit {
+            background-color: #ff9900; /* Accent Color (kept orange) */
+            color: #333; 
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #chat-submit:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- The main chat container to be placed on a dedicated page - Added ARIA landmark role -->
+    <div id="embedded-chat-container" role="region" aria-label="El Maistro Training Generator Chat Interface">
+        <div class="chat-header">El Maistro: Your Premier Soccer Training Generator</div>
+        <!-- Message Area - Added ARIA live region for screen readers to announce new messages -->
+        <div id="chat-messages" aria-live="polite">
+            <div class="message bot-message">
+                **Welcome, Coach! I'm El Maistro.** I specialize in building challenging, club-level training programs for your players (U14 and below, up to U18). What topic are we training on today (e.g., "Pressing in the attacking third" or "Quick decision-making")?
+            </div>
+        </div>
+        <div id="loading-indicator">El Maistro is crafting your Premier-level program...</div>
+        <form id="chat-form">
+            <!-- Input - Added ARIA label for screen readers -->
+            <input type="text" id="chat-input" placeholder="Ask El Maistro for a training program..." aria-label="Program request input" required>
+            <button type="submit" id="chat-submit">Generate</button>
+        </form>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('embedded-chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const chatSubmit = document.getElementById('chat-submit');
+
+        // IMPORTANT: REPLACE THIS URL with your Vercel API URL after deployment (SAME URL as the floating widget)
+        const API_URL = "https://el-maistro-coach-agent.vercel.app/api/chat"; 
+        
+        // Function to create and display a new message
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            messageDiv.innerHTML = text; 
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Handle sending the message
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            chatInput.value = '';
+            
+            loadingIndicator.style.display = 'block';
+            chatSubmit.disabled = true;
+
+            try {
+                // Send the user message to the secure Vercel API endpoint
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                addMessage(data.reply, 'bot');
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                addMessage("I'm sorry, El Maistro couldn't connect to the server. Please try again later.", 'bot');
+            } finally {
+                loadingIndicator.style.display = 'none';
+                chatSubmit.disabled = false;
+            }
+        });
+
+        // Initial check to handle the API URL being a placeholder
+        if (API_URL.includes('[YOUR-VERCEL-DOMAIN]')) {
+             addMessage("⚠️ **SETUP REQUIRED**: The API is currently set to a placeholder. You must update the `API_URL` in the HTML code after deploying to Vercel.", 'bot');
+        }
+
+    </script>
+</body>
+</html>
