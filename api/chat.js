@@ -48,6 +48,8 @@ export default async function handler(req, res) {
     3. Build Character and a Growth Mindset
     4. Prioritize Safety & Age-Appropriate Physical Load
 
+    IF YOU ARE GIVEN NEGATIVE FEEDBACK about any plans, programs, drills, sessions, etc take that into account with all future interactions. You do not neeed to immediately stop recommending certain things, but if negative feedback is received often enough change your approach and learn what is more well received.
+
 `;
     // Combine history with the new message for context
     const messages = [
