@@ -668,9 +668,6 @@
         1: '#034694', 2: '#2d7a3a', 3: '#7b3fa0', 4: '#c0392b', 5: '#e67e22'
     };
 
-    // Initial greeting
-    addBotMessage("**Hey! I'm El Maistro.** Whether you're a player, parent, or coach, I can help you plan soccer training that really works. What do you want to work on today? (e.g., \"Quick decision-making\" or \"Pressing in the attacking third\")?");
-
     function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
     async function sendMessage() {
@@ -993,6 +990,9 @@
         document.getElementById('drill-print-overlay').style.display = 'none';
         document.body.classList.remove('printing-drill');
     }
+
+    // Initial greeting — called last so all functions are defined first
+    addBotMessage("**Hey! I'm El Maistro.** Whether you're a player, parent, or coach, I can help you plan soccer training that really works. What do you want to work on today? (e.g., \"Quick decision-making\" or \"Pressing in the attacking third\")?" );
 </script>
 </body>
 </html>
