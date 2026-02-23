@@ -406,6 +406,86 @@
             font-size: 14px; letter-spacing: 1px;
         }
 
+        /* ── DRILL ACTION BUTTONS ── */
+        .drill-actions {
+            display: flex;
+            gap: 6px;
+            padding: 8px 14px;
+            background: white;
+            border-top: 1px solid var(--border);
+            justify-content: flex-end;
+        }
+
+        .drill-action-btn {
+            display: flex; align-items: center; gap: 4px;
+            padding: 5px 11px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--off-white);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px; font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: 0.2px;
+        }
+
+        .drill-action-btn:hover {
+            background: white;
+            border-color: var(--royal);
+            color: var(--royal);
+        }
+
+        .drill-action-btn.copied {
+            background: #e8f5ea;
+            border-color: var(--grass);
+            color: var(--grass);
+        }
+
+        .drill-action-btn svg {
+            width: 11px; height: 11px;
+            fill: currentColor; flex-shrink: 0;
+        }
+
+        /* ── SINGLE DRILL PRINT OVERLAY ── */
+        #drill-print-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: white;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 32px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        #drill-print-overlay .overlay-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--royal);
+        }
+
+        #drill-print-overlay .overlay-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px; letter-spacing: 2px; color: var(--royal);
+        }
+
+        #drill-print-overlay .overlay-close {
+            background: var(--off-white); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 16px;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+        }
+
+        #drill-print-overlay .overlay-close:hover { background: #fee; border-color: #c00; color: #c00; }
+
+        #drill-print-overlay .overlay-content { max-width: 680px; margin: 0 auto; }
+
+        /* Print styles for overlay */
+        @media print {
+            #drill-print-overlay .overlay-close { display: none !important; }
+        }
+
         /* ── LOADER ── */
         #loader {
             padding: 8px 16px; display: none;
@@ -476,48 +556,58 @@
 
         /* ── PRINT STYLES ── */
         @media print {
-            body { background: white; height: auto; overflow: visible; }
+            /* When printing single drill overlay */
+            body.printing-drill #header,
+            body.printing-drill #chat-history,
+            body.printing-drill #input-area,
+            body.printing-drill #loader { display: none !important; }
 
-            #header {
+            body.printing-drill #drill-print-overlay { display: block !important; }
+            body.printing-drill #drill-print-overlay .overlay-close { display: none !important; }
+
+            /* When printing full session plan */
+            body:not(.printing-drill) {
+                background: white; height: auto; overflow: visible;
+            }
+
+            body:not(.printing-drill) #header {
                 background: white !important;
                 border-bottom: 2px solid var(--royal);
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
-            #header-title { color: var(--royal) !important; }
-            #header-subtitle { color: var(--gold) !important; }
-            #header-logo { background: var(--gold) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #print-btn, #input-area, #loader { display: none !important; }
+            body:not(.printing-drill) #header-title { color: var(--royal) !important; }
+            body:not(.printing-drill) #header-subtitle { color: var(--gold) !important; }
+            body:not(.printing-drill) #header-logo { background: var(--gold) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body:not(.printing-drill) #print-btn,
+            body:not(.printing-drill) #input-area,
+            body:not(.printing-drill) #loader { display: none !important; }
 
-            #chat-history {
+            body:not(.printing-drill) #chat-history {
                 overflow: visible; height: auto;
                 background: white; padding: 0; gap: 16px;
             }
 
-            .message-row.user { display: none; }
+            /* Hide all chat bubbles — show only session plan */
+            body:not(.printing-drill) .message-row { display: none !important; }
+            body:not(.printing-drill) .session-wrapper { display: block !important; }
 
-            .message.bot {
-                max-width: 100%;
-                border: 1px solid var(--border);
-                box-shadow: none;
-                page-break-inside: avoid;
-                font-size: 12px;
-            }
-
-            .session-wrapper { page-break-inside: avoid; }
-
-            .session-header {
+            body:not(.printing-drill) .session-header {
                 background: var(--navy) !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
-            .timeline::before { display: none; }
-
-            .drill-body { page-break-inside: avoid; }
-
-            .drill-card { margin-bottom: 16px; }
+            body:not(.printing-drill) .timeline::before { display: none; }
+            body:not(.printing-drill) .drill-body { page-break-inside: avoid; }
+            body:not(.printing-drill) .drill-card { margin-bottom: 16px; }
+            body:not(.printing-drill) .drill-actions { display: none !important; }
+            body:not(.printing-drill) .closing-note {
+                background: var(--navy) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
@@ -555,6 +645,17 @@
     <button onclick="sendMessage()" id="send-btn">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
+</div>
+
+<!-- SINGLE DRILL PRINT OVERLAY -->
+<div id="drill-print-overlay">
+    <div class="overlay-content">
+        <div class="overlay-header">
+            <div class="overlay-title" id="overlay-title">Drill</div>
+            <button class="overlay-close" onclick="closeDrillOverlay()">✕ Close</button>
+        </div>
+        <div id="overlay-body"></div>
+    </div>
 </div>
 
 <script>
@@ -672,8 +773,10 @@
                 ? `<div class="setup-note">${escapeHtml(drill.setup)}</div>`
                 : '';
 
+            const drillIndex = i;
+
             return `
-            <div class="drill-card" data-phase="${phase}">
+            <div class="drill-card" data-phase="${phase}" data-drill-index="${drillIndex}">
                 <div class="drill-node">${phase}</div>
                 <div class="drill-body">
                     <div class="drill-card-header">
@@ -713,6 +816,16 @@
                         </div>` : ''}
 
                         ${hydrationHtml}
+                    </div>
+                    <div class="drill-actions">
+                        <button class="drill-action-btn" onclick="copyDrill(${drillIndex})" id="copy-btn-${drillIndex}">
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Copy Drill
+                        </button>
+                        <button class="drill-action-btn" onclick="printDrill(${drillIndex})">
+                            <svg viewBox="0 0 24 24"><path d="M8 3h8v4H8zm-3 5h14a2 2 0 012 2v5h-3v4H6v-4H3v-5a2 2 0 012-2zm10 10v-4H9v4h6zm2-7a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                            Print Drill
+                        </button>
                     </div>
                 </div>
             </div>`;
@@ -756,6 +869,131 @@
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
+    }
+
+    // Store drill data for copy/print actions
+    let drillStore = [];
+
+    // Override renderSessionPlan to also populate drillStore
+    const _origRender = renderSessionPlan;
+    function renderSessionPlan(plan) {
+        drillStore = plan.drills || [];
+        _origRender(plan);
+    }
+
+    function drillToPlainText(drill) {
+        const lines = [];
+        lines.push(`${drill.phase ? drill.phase.toUpperCase() : ''}: ${drill.title || 'Drill'}`);
+        lines.push(`Duration: ${drill.duration || '—'}   Players: ${drill.players || '—'}`);
+        if (drill.setup) lines.push(`Setup: ${drill.setup}`);
+        lines.push('');
+
+        if (drill.instructions?.length) {
+            lines.push('INSTRUCTIONS:');
+            drill.instructions.forEach((s, i) => lines.push(`  ${i+1}. ${s}`));
+            lines.push('');
+        }
+        if (drill.coachingCues?.length) {
+            lines.push('COACHING CUES:');
+            drill.coachingCues.forEach(s => lines.push(`  • ${s}`));
+            lines.push('');
+        }
+        if (drill.commonMistakes?.length) {
+            lines.push('COMMON MISTAKES:');
+            drill.commonMistakes.forEach(s => lines.push(`  ! ${s}`));
+            lines.push('');
+        }
+        if (drill.variations?.length) {
+            lines.push('VARIATIONS & PROGRESSIONS:');
+            drill.variations.forEach(s => lines.push(`  + ${s}`));
+            lines.push('');
+        }
+        if (drill.hydrationNote) {
+            lines.push(`💧 ${drill.hydrationNote}`);
+        }
+        return lines.join('\n');
+    }
+
+    function copyDrill(index) {
+        const drill = drillStore[index];
+        if (!drill) return;
+        const text = drillToPlainText(drill);
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById(`copy-btn-${index}`);
+            if (btn) {
+                btn.classList.add('copied');
+                btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Copied!`;
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy Drill`;
+                }, 2000);
+            }
+        });
+    }
+
+    function printDrill(index) {
+        const drill = drillStore[index];
+        if (!drill) return;
+
+        const phase = drill.phaseNumber || (index + 1);
+        const phaseColors = { 1:'#034694', 2:'#2d7a3a', 3:'#7b3fa0', 4:'#c0392b', 5:'#e67e22' };
+        const color = phaseColors[phase] || '#034694';
+
+        const instructionsHtml = (drill.instructions || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+        const cuesHtml = (drill.coachingCues || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+        const mistakesHtml = (drill.commonMistakes || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+        const variationsHtml = (drill.variations || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+
+        document.getElementById('overlay-title').textContent = drill.title || 'Drill';
+
+        document.getElementById('overlay-body').innerHTML = `
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                <span style="background:#e8f0fe;color:#1a56c4;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">⏱ ${escapeHtml(drill.duration||'—')}</span>
+                <span style="background:#e8f5ea;color:#1e6e30;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">👥 ${escapeHtml(drill.players||'—')}</span>
+                <span style="background:${color}20;color:${color};font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;letter-spacing:0.5px;">${escapeHtml(drill.phase||'')}</span>
+            </div>
+            ${drill.setup ? `<p style="font-size:13px;color:#6b7a9a;font-style:italic;margin-bottom:16px;">${escapeHtml(drill.setup)}</p>` : ''}
+
+            ${instructionsHtml ? `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7a9a;margin-bottom:6px;border-left:3px solid #034694;padding-left:8px;">Instructions</div>
+                <ul style="padding-left:18px;margin:0;font-size:13px;line-height:1.6;">${instructionsHtml}</ul>
+            </div>` : ''}
+
+            ${cuesHtml ? `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7a9a;margin-bottom:6px;border-left:3px solid #2d7a3a;padding-left:8px;">Coaching Cues</div>
+                <ul style="padding-left:18px;margin:0;font-size:13px;line-height:1.6;">${cuesHtml}</ul>
+            </div>` : ''}
+
+            ${mistakesHtml ? `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7a9a;margin-bottom:6px;border-left:3px solid #c0392b;padding-left:8px;">Common Mistakes</div>
+                <ul style="padding-left:18px;margin:0;font-size:13px;line-height:1.6;">${mistakesHtml}</ul>
+            </div>` : ''}
+
+            ${variationsHtml ? `
+            <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7a9a;margin-bottom:6px;border-left:3px solid #7b3fa0;padding-left:8px;">Variations & Progressions</div>
+                <ul style="padding-left:18px;margin:0;font-size:13px;line-height:1.6;">${variationsHtml}</ul>
+            </div>` : ''}
+
+            ${drill.hydrationNote ? `
+            <div style="background:#e8f4fd;border:1px solid #bee3f8;border-radius:6px;padding:8px 12px;font-size:12px;color:#2c5f8a;">
+                💧 ${escapeHtml(drill.hydrationNote)}
+            </div>` : ''}
+        `;
+
+        document.getElementById('drill-print-overlay').style.display = 'block';
+        document.body.classList.add('printing-drill');
+        window.print();
+        document.getElementById('drill-print-overlay').style.display = 'none';
+        document.body.classList.remove('printing-drill');
+    }
+
+    function closeDrillOverlay() {
+        document.getElementById('drill-print-overlay').style.display = 'none';
+        document.body.classList.remove('printing-drill');
     }
 </script>
 </body>
