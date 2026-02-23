@@ -50,11 +50,11 @@ export default async function handler(req, res) {
     IF YOU ARE GIVEN NEGATIVE FEEDBACK about any plans, programs, drills, sessions, etc take that into account with all future interactions. You do not need to immediately stop recommending certain things, but if negative feedback is received often enough change your approach and learn what is more well received.
 
     ============================================================
-    SESSION PLAN OUTPUT FORMAT — CRITICAL INSTRUCTIONS
+    SESSION PLAN OUTPUT FORMAT - CRITICAL INSTRUCTIONS
     ============================================================
     When you are delivering a COMPLETE SESSION PLAN (not a single drill, not a clarifying question, not a follow-up explanation), you MUST respond ONLY with a valid JSON object in the following structure.
 
-    IMPORTANT: Output NOTHING before the opening { and NOTHING after the closing }. No greeting, no introduction, no summary, no encouragement before or after. The JSON itself contains a closingNote field — use that for your closing message. The entire response must be parseable as JSON and nothing else.
+    IMPORTANT: Output NOTHING before the opening { and NOTHING after the closing }. No greeting, no introduction, no summary, no encouragement before or after. The JSON itself contains a closingNote field - use that for your closing message. The entire response must be parseable as JSON and nothing else.
 
     When you are having a conversation, answering a single question, asking clarifying questions, or providing a single drill, respond normally in markdown as usual.
 
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     {
       "type": "SESSION_PLAN",
       "sessionMeta": {
-        "title": "Short session title (e.g. 'Pressing & High Press Recovery')",
+        "title": "Short session title",
         "ageGroup": "e.g. U12 Girls",
         "skillLevel": "e.g. Club",
         "duration": "e.g. 75 minutes",
@@ -82,39 +82,25 @@ export default async function handler(req, res) {
           "title": "Drill name here",
           "duration": "10 min",
           "players": "Individual / pairs / groups of 4",
-          "setup": "Brief setup description — space size, equipment needed",
-          "instructions": [
-            "Step 1 instruction",
-            "Step 2 instruction",
-            "Step 3 instruction"
-          ],
-          "coachingCues": [
-            "Cue 1 — what to look for",
-            "Cue 2",
-            "Coaching question to ask players"
-          ],
-          "commonMistakes": [
-            "Mistake 1 and how to correct it",
-            "Mistake 2"
-          ],
-          "variations": [
-            "Progression or variation 1",
-            "Regression for struggling players"
-          ],
+          "setup": "Brief setup description",
+          "instructions": ["Step 1", "Step 2", "Step 3"],
+          "coachingCues": ["Cue 1", "Cue 2", "Coaching question"],
+          "commonMistakes": ["Mistake 1 and correction", "Mistake 2"],
+          "variations": ["Progression 1", "Regression for struggling players"],
           "hydrationNote": "Include if a water break is recommended here"
         }
       ],
       "closingNote": "An encouraging closing message from El Maistro to the coach."
     }
 
-    The "phase" field must follow the 5-phase session structure:
-    Phase 1: "Ball Mastery / Activation"
-    Phase 2: "Technical Repetition"
-    Phase 3: "Small-Sided Activity"
-    Phase 4: "The Game"
-    Phase 5: "Cool Down & Reflection"
+    The phase field must follow the 5-phase session structure:
+    Phase 1: Ball Mastery / Activation
+    Phase 2: Technical Repetition
+    Phase 3: Small-Sided Activity
+    Phase 4: The Game
+    Phase 5: Cool Down & Reflection
 
-    Include all 5 phases unless the session is very short (under 45 min), in which case you may combine phases thoughtfully.
+    Include all 5 phases unless the session is very short (under 45 min), in which case combine phases thoughtfully.
     ============================================================
     `;
 
@@ -124,26 +110,39 @@ export default async function handler(req, res) {
       { role: "user", content: message }
     ];
 
-    const completion = await openai.chat.completions.create({
+    // Set headers for Server-Sent Events streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+
+    // Stream from OpenAI
+    const stream = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: messages,
+      stream: true,
     });
 
-    const reply = completion.choices[0].message.content;
+    let fullText = '';
 
-    // Detect if the reply is a session plan JSON
-    // Handles: pure JSON, JSON in code fences, or JSON embedded in surrounding text
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content || '';
+      if (token) {
+        fullText += token;
+        res.write(`data: ${JSON.stringify({ token })}\n\n`);
+      }
+    }
+
+    // Stream complete - detect if it's a session plan
     let parsedPlan = null;
     try {
-      const trimmed = reply.trim();
+      const trimmed = fullText.trim();
       let jsonString = trimmed;
 
-      // Strip markdown code fences if present
       if (trimmed.startsWith('```')) {
         jsonString = trimmed.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       }
 
-      // Extract first JSON object even if surrounded by text
       if (!jsonString.trimStart().startsWith('{')) {
         const start = trimmed.indexOf('{');
         const end = trimmed.lastIndexOf('}');
@@ -157,17 +156,24 @@ export default async function handler(req, res) {
         parsedPlan = parsed;
       }
     } catch (e) {
-      // Not JSON — normal markdown reply, that's fine
+      // Not JSON - normal chat reply
     }
 
     if (parsedPlan) {
-      res.status(200).json({ type: 'SESSION_PLAN', plan: parsedPlan });
+      res.write(`data: ${JSON.stringify({ done: true, type: 'SESSION_PLAN', plan: parsedPlan })}\n\n`);
     } else {
-      res.status(200).json({ type: 'CHAT', reply });
+      res.write(`data: ${JSON.stringify({ done: true, type: 'CHAT', reply: fullText })}\n\n`);
     }
+
+    res.end();
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error processing request' });
+    try {
+      res.write(`data: ${JSON.stringify({ error: 'Something went wrong. Please try again.' })}\n\n`);
+      res.end();
+    } catch {
+      res.status(500).json({ error: 'Error processing request' });
+    }
   }
 }
