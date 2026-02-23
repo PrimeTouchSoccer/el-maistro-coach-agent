@@ -683,12 +683,6 @@
         document.getElementById('loader').style.display = 'block';
         document.getElementById('send-btn').disabled = true;
 
-        // Create a streaming bot message bubble for chat replies
-        let streamingRow = null;
-        let streamingDiv = null;
-        let fullText = '';
-        let isSessionPlan = false;
-
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -696,84 +690,20 @@
                 body: JSON.stringify({ message: text, history })
             });
 
-            if (!response.ok) throw new Error('Network error');
+            const data = await response.json();
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('
-');
-                buffer = lines.pop(); // keep incomplete line in buffer
-
-                for (const line of lines) {
-                    if (!line.startsWith('data: ')) continue;
-                    const jsonStr = line.slice(6).trim();
-                    if (!jsonStr) continue;
-
-                    let event;
-                    try { event = JSON.parse(jsonStr); } catch { continue; }
-
-                    if (event.error) {
-                        addBotMessage("Whistle blew! Something went wrong. Please try again.");
-                        return;
-                    }
-
-                    if (event.token) {
-                        fullText += event.token;
-
-                        // Only stream text visually if it looks like a chat reply (not JSON)
-                        if (!fullText.trimStart().startsWith('{')) {
-                            // Hide loader once first token arrives
-                            document.getElementById('loader').style.display = 'none';
-
-                            if (!streamingRow) {
-                                // Create the bubble once on first token
-                                streamingRow = document.createElement('div');
-                                streamingRow.className = 'message-row bot';
-                                streamingDiv = document.createElement('div');
-                                streamingDiv.className = 'message bot';
-                                streamingRow.innerHTML = '<div class="avatar bot">⚽</div>';
-                                streamingRow.appendChild(streamingDiv);
-                                appendAndScroll(streamingRow);
-                            }
-                            // Update bubble with rendered markdown as tokens arrive
-                            streamingDiv.innerHTML = marked.parse(fullText);
-                            const historyDiv = document.getElementById('chat-history');
-                            historyDiv.scrollTop = historyDiv.scrollHeight;
-                        }
-                    }
-
-                    if (event.done) {
-                        if (event.type === 'SESSION_PLAN') {
-                            isSessionPlan = true;
-                            // Remove the streaming bubble if one was created during JSON buffering
-                            if (streamingRow) streamingRow.remove();
-                            document.getElementById('loader').style.display = 'none';
-                            renderSessionPlan(event.plan);
-                            document.getElementById('print-btn').classList.add('visible');
-
-                            history.push({ role: 'user', content: text });
-                            history.push({ role: 'assistant', content: JSON.stringify(event.plan) });
-
-                        } else {
-                            // Finalize the chat bubble with fully rendered markdown
-                            if (streamingDiv) {
-                                streamingDiv.innerHTML = marked.parse(event.reply || fullText);
-                            } else {
-                                addBotMessage(event.reply || fullText);
-                            }
-                            history.push({ role: 'user', content: text });
-                            history.push({ role: 'assistant', content: event.reply || fullText });
-                        }
-                    }
-                }
+            if (data.type === 'SESSION_PLAN') {
+                renderSessionPlan(data.plan);
+                document.getElementById('print-btn').classList.add('visible');
+            } else {
+                addBotMessage(data.reply);
             }
+
+            history.push({ role: 'user', content: text });
+            history.push({
+                role: 'assistant',
+                content: data.type === 'SESSION_PLAN' ? JSON.stringify(data.plan) : data.reply
+            });
 
         } catch (err) {
             console.error(err);
