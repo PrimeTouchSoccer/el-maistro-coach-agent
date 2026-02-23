@@ -52,7 +52,9 @@ export default async function handler(req, res) {
     ============================================================
     SESSION PLAN OUTPUT FORMAT — CRITICAL INSTRUCTIONS
     ============================================================
-    When you are delivering a COMPLETE SESSION PLAN (not a single drill, not a clarifying question, not a follow-up explanation), you MUST respond ONLY with a valid JSON object in the following structure. Do not include any text before or after the JSON block — just the raw JSON.
+    When you are delivering a COMPLETE SESSION PLAN (not a single drill, not a clarifying question, not a follow-up explanation), you MUST respond ONLY with a valid JSON object in the following structure.
+
+    IMPORTANT: Output NOTHING before the opening { and NOTHING after the closing }. No greeting, no introduction, no summary, no encouragement before or after. The JSON itself contains a closingNote field — use that for your closing message. The entire response must be parseable as JSON and nothing else.
 
     When you are having a conversation, answering a single question, asking clarifying questions, or providing a single drill, respond normally in markdown as usual.
 
@@ -130,12 +132,26 @@ export default async function handler(req, res) {
     const reply = completion.choices[0].message.content;
 
     // Detect if the reply is a session plan JSON
+    // Handles: pure JSON, JSON in code fences, or JSON embedded in surrounding text
     let parsedPlan = null;
     try {
       const trimmed = reply.trim();
-      const jsonString = trimmed.startsWith('```')
-        ? trimmed.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
-        : trimmed;
+      let jsonString = trimmed;
+
+      // Strip markdown code fences if present
+      if (trimmed.startsWith('```')) {
+        jsonString = trimmed.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      }
+
+      // Extract first JSON object even if surrounded by text
+      if (!jsonString.trimStart().startsWith('{')) {
+        const start = trimmed.indexOf('{');
+        const end = trimmed.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          jsonString = trimmed.slice(start, end + 1);
+        }
+      }
+
       const parsed = JSON.parse(jsonString);
       if (parsed.type === 'SESSION_PLAN') {
         parsedPlan = parsed;
