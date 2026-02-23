@@ -18,6 +18,12 @@
             --border: #e2e6f0;
             --text: #1a2540;
             --text-muted: #6b7a9a;
+
+            --phase1: #034694;
+            --phase2: #2d7a3a;
+            --phase3: #7b3fa0;
+            --phase4: #c0392b;
+            --phase5: #e67e22;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,68 +49,46 @@
         }
 
         #header-logo {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             background: var(--gold);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
         }
 
         #header-text { flex: 1; }
 
         #header-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 22px;
-            letter-spacing: 2px;
-            color: var(--white);
-            line-height: 1;
+            font-size: 22px; letter-spacing: 2px;
+            color: var(--white); line-height: 1;
         }
 
         #header-subtitle {
-            font-size: 10px;
-            color: var(--gold);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            font-weight: 500;
+            font-size: 10px; color: var(--gold);
+            letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;
         }
 
         #print-btn {
             background: transparent;
             border: 1px solid rgba(245,166,35,0.4);
             color: var(--gold);
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 11px;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600;
+            padding: 6px 12px; border-radius: 20px;
+            cursor: pointer; font-size: 11px;
+            font-family: 'DM Sans', sans-serif; font-weight: 600;
             letter-spacing: 0.5px;
-            display: none;
-            align-items: center;
-            gap: 5px;
+            display: none; align-items: center; gap: 5px;
             transition: all 0.2s ease;
         }
 
-        #print-btn:hover {
-            background: var(--gold);
-            color: var(--navy);
-            border-color: var(--gold);
-        }
-
+        #print-btn:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
         #print-btn.visible { display: flex; }
 
         /* ── CHAT AREA ── */
         #chat-history {
-            flex: 1;
-            overflow-y: auto;
+            flex: 1; overflow-y: auto;
             padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: flex; flex-direction: column; gap: 12px;
             background: var(--off-white);
             background-image:
                 radial-gradient(circle at 20% 80%, rgba(3,70,148,0.04) 0%, transparent 50%),
@@ -115,65 +99,48 @@
         #chat-history::-webkit-scrollbar-track { background: transparent; }
         #chat-history::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        /* ── MESSAGES ── */
+        /* ── CHAT BUBBLES ── */
         .message-row {
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
+            display: flex; gap: 8px; align-items: flex-end;
             animation: msgIn 0.25s ease forwards;
-            opacity: 0;
-            transform: translateY(8px);
+            opacity: 0; transform: translateY(8px);
         }
 
         .message-row.user { flex-direction: row-reverse; }
 
         .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            flex-shrink: 0;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
         }
 
         .avatar.bot { background: var(--royal); color: white; }
         .avatar.user { background: var(--gold); color: var(--navy); font-weight: 700; font-size: 10px; }
 
         .message {
-            max-width: 78%;
-            padding: 11px 15px;
-            border-radius: 16px;
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: var(--text);
+            max-width: 78%; padding: 11px 15px;
+            border-radius: 16px; font-size: 13.5px; line-height: 1.6; color: var(--text);
         }
 
         .message.bot {
-            background: var(--white);
-            border: 1px solid var(--border);
+            background: var(--white); border: 1px solid var(--border);
             border-bottom-left-radius: 4px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
         .message.user {
-            background: var(--royal);
-            color: white;
+            background: var(--royal); color: white;
             border-bottom-right-radius: 4px;
             box-shadow: 0 2px 8px rgba(3,70,148,0.3);
         }
 
-        /* Markdown rendering inside bot messages */
         .message.bot strong { color: var(--royal); font-weight: 700; }
         .message.bot em { color: var(--text-muted); }
         .message.bot ul, .message.bot ol { padding-left: 18px; margin: 6px 0; }
         .message.bot li { margin: 3px 0; }
         .message.bot h1, .message.bot h2, .message.bot h3 {
             font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 1px;
-            margin: 10px 0 4px;
-            color: var(--royal);
+            letter-spacing: 1px; margin: 10px 0 4px; color: var(--royal);
         }
         .message.bot h1 { font-size: 20px; }
         .message.bot h2 { font-size: 17px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
@@ -181,53 +148,150 @@
         .message.bot p { margin: 5px 0; }
         .message.bot p:first-child { margin-top: 0; }
         .message.bot p:last-child { margin-bottom: 0; }
-        .message.bot blockquote {
-            border-left: 3px solid var(--gold);
-            padding-left: 10px;
-            margin: 8px 0;
-            color: var(--text-muted);
-            font-style: italic;
-        }
-        .message.bot hr {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 10px 0;
-        }
+        .message.bot blockquote { border-left: 3px solid var(--gold); padding-left: 10px; margin: 8px 0; color: var(--text-muted); font-style: italic; }
+        .message.bot hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 
         @keyframes msgIn {
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* ══════════════════════════════════════
+           DRILL CARD LAYOUT
+        ══════════════════════════════════════ */
+
+        /* Wrapper for the whole session — sits where a message-row would be */
+        .session-plan-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: msgIn 0.3s ease forwards;
+            opacity: 0; transform: translateY(8px);
+        }
+
+        /* Intro text block above the cards (if any) */
+        .session-intro {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--text);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .session-intro strong { color: var(--royal); font-weight: 700; }
+        .session-intro ul, .session-intro ol { padding-left: 18px; margin: 6px 0; }
+        .session-intro li { margin: 3px 0; }
+        .session-intro p { margin: 4px 0; }
+        .session-intro p:first-child { margin-top: 0; }
+        .session-intro p:last-child { margin-bottom: 0; }
+
+        /* Each drill card row — number node + card body */
+        .drill-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        /* Vertical connector line between cards */
+        .drill-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 36px;
+            bottom: -10px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        /* Numbered circle */
+        .drill-number {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 17px; color: white;
+            flex-shrink: 0;
+            position: relative; z-index: 1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .drill-row:nth-child(1) .drill-number { background: var(--phase1); }
+        .drill-row:nth-child(2) .drill-number { background: var(--phase2); }
+        .drill-row:nth-child(3) .drill-number { background: var(--phase3); }
+        .drill-row:nth-child(4) .drill-number { background: var(--phase4); }
+        .drill-row:nth-child(5) .drill-number { background: var(--phase5); }
+        .drill-row:nth-child(6) .drill-number { background: var(--phase1); }
+        .drill-row:nth-child(7) .drill-number { background: var(--phase2); }
+        .drill-row:nth-child(8) .drill-number { background: var(--phase3); }
+
+        /* Card body */
+        .drill-card {
+            flex: 1;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* Colored top accent per position */
+        .drill-row:nth-child(1) .drill-card { border-top: 3px solid var(--phase1); }
+        .drill-row:nth-child(2) .drill-card { border-top: 3px solid var(--phase2); }
+        .drill-row:nth-child(3) .drill-card { border-top: 3px solid var(--phase3); }
+        .drill-row:nth-child(4) .drill-card { border-top: 3px solid var(--phase4); }
+        .drill-row:nth-child(5) .drill-card { border-top: 3px solid var(--phase5); }
+        .drill-row:nth-child(6) .drill-card { border-top: 3px solid var(--phase1); }
+        .drill-row:nth-child(7) .drill-card { border-top: 3px solid var(--phase2); }
+        .drill-row:nth-child(8) .drill-card { border-top: 3px solid var(--phase3); }
+
+        .drill-card-inner {
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .drill-card-inner h2, .drill-card-inner h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+            color: var(--text);
+            font-size: 16px;
+            margin: 0 0 8px 0;
+        }
+
+        .drill-card-inner strong { color: var(--royal); font-weight: 700; }
+        .drill-card-inner ul, .drill-card-inner ol { padding-left: 18px; margin: 4px 0 8px; }
+        .drill-card-inner li { margin: 3px 0; }
+        .drill-card-inner p { margin: 4px 0; }
+        .drill-card-inner p:first-child { margin-top: 0; }
+        .drill-card-inner p:last-child { margin-bottom: 0; }
+        .drill-card-inner hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+        .drill-card-inner blockquote { border-left: 3px solid var(--gold); padding-left: 10px; margin: 6px 0; color: var(--text-muted); font-style: italic; }
+
         /* ── LOADER ── */
         #loader {
-            padding: 8px 16px;
-            display: none;
-            background: var(--off-white);
-            flex-shrink: 0;
+            padding: 8px 16px; display: none;
+            background: var(--off-white); flex-shrink: 0;
         }
 
         .typing-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 10px 16px;
-            font-size: 12px;
-            color: var(--text-muted);
+            display: inline-flex; align-items: center; gap: 8px;
+            background: white; border: 1px solid var(--border);
+            border-radius: 16px; padding: 10px 16px;
+            font-size: 12px; color: var(--text-muted);
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
         .typing-dots { display: flex; gap: 3px; }
 
         .typing-dots span {
-            width: 6px;
-            height: 6px;
-            background: var(--royal);
-            border-radius: 50%;
-            opacity: 0.4;
-            animation: bounce 1.2s infinite;
+            width: 6px; height: 6px;
+            background: var(--royal); border-radius: 50%;
+            opacity: 0.4; animation: bounce 1.2s infinite;
         }
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
@@ -239,25 +303,16 @@
 
         /* ── INPUT AREA ── */
         #input-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 14px;
-            background: white;
-            border-top: 1px solid var(--border);
-            flex-shrink: 0;
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 14px; background: white;
+            border-top: 1px solid var(--border); flex-shrink: 0;
         }
 
         #user-input {
-            flex: 1;
-            padding: 10px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 24px;
-            outline: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13.5px;
-            color: var(--text);
-            background: var(--off-white);
+            flex: 1; padding: 10px 16px;
+            border: 1.5px solid var(--border); border-radius: 24px;
+            outline: none; font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px; color: var(--text); background: var(--off-white);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -270,49 +325,34 @@
         #user-input::placeholder { color: var(--text-muted); }
 
         #send-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--royal);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px; height: 40px;
+            background: var(--royal); color: white;
+            border: none; border-radius: 50%;
+            cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
             transition: background 0.2s ease, transform 0.1s ease;
             flex-shrink: 0;
         }
 
-        #send-btn:hover:not(:disabled) {
-            background: var(--royal-light);
-            transform: scale(1.05);
-        }
-
+        #send-btn:hover:not(:disabled) { background: var(--royal-light); transform: scale(1.05); }
         #send-btn:active:not(:disabled) { transform: scale(0.95); }
         #send-btn:disabled { background: var(--border); cursor: not-allowed; }
         #send-btn svg { width: 16px; height: 16px; fill: white; }
 
-        /* ── PRINT STYLES ── */
+        /* ── PRINT ── */
         @media print {
             body { background: white; height: auto; overflow: visible; }
-            #header { background: white; border-bottom: 2px solid #034694; color: #034694; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #header { background: white; border-bottom: 2px solid #034694; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #header-title { color: #034694; }
             #header-subtitle { color: #f5a623; }
             #header-logo { background: #f5a623; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            #input-area, #loader, #print-btn, .avatar.user, .message.user { display: none !important; }
+            #input-area, #loader, #print-btn { display: none !important; }
             #chat-history { overflow: visible; height: auto; background: white; padding: 0; gap: 16px; }
             .message-row.user { display: none; }
-            .message.bot {
-                max-width: 100%;
-                border: 1px solid #e2e6f0;
-                box-shadow: none;
-                page-break-inside: avoid;
-                font-size: 12px;
-            }
-            .message.bot strong { color: #034694; }
-            .message.bot h2 { color: #034694; border-bottom-color: #e2e6f0; }
-            .message.bot h3 { color: #2d7a3a; }
+            .message.bot { max-width: 100%; box-shadow: none; page-break-inside: avoid; font-size: 12px; }
+            .session-plan-wrapper { gap: 8px; }
+            .drill-card { page-break-inside: avoid; box-shadow: none; }
+            .drill-row::after { display: none; }
         }
     </style>
 </head>
@@ -337,9 +377,7 @@
 <!-- LOADER -->
 <div id="loader">
     <div class="typing-indicator">
-        <div class="typing-dots">
-            <span></span><span></span><span></span>
-        </div>
+        <div class="typing-dots"><span></span><span></span><span></span></div>
         El Maistro is thinking...
     </div>
 </div>
@@ -358,9 +396,7 @@
     let history = [];
     let sessionStarted = false;
 
-    function handleEnter(e) {
-        if (e.key === 'Enter') sendMessage();
-    }
+    function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
     async function sendMessage() {
         const input = document.getElementById('user-input');
@@ -380,16 +416,21 @@
             });
 
             const data = await response.json();
-            addBotMessage(data.reply);
+
+            // Decide how to render
+            if (isSessionPlan(data.reply)) {
+                renderDrillCards(data.reply);
+                document.getElementById('print-btn').classList.add('visible');
+            } else {
+                addBotMessage(data.reply);
+                if (!sessionStarted && data.reply && data.reply.length > 400) {
+                    sessionStarted = true;
+                    document.getElementById('print-btn').classList.add('visible');
+                }
+            }
 
             history.push({ role: 'user', content: text });
             history.push({ role: 'assistant', content: data.reply });
-
-            // Show print button once a substantial response is received
-            if (!sessionStarted && data.reply && data.reply.length > 400) {
-                sessionStarted = true;
-                document.getElementById('print-btn').classList.add('visible');
-            }
 
         } catch (err) {
             addBotMessage("Whistle blew! I lost connection to the field. Please try again.");
@@ -397,6 +438,75 @@
             document.getElementById('loader').style.display = 'none';
             document.getElementById('send-btn').disabled = false;
         }
+    }
+
+    /*
+     * Detect if the response looks like a session plan.
+     * Heuristic: long response that contains multiple ## or ### headers
+     * (El Maistro uses headers for drill titles in session plans).
+     */
+    function isSessionPlan(text) {
+        if (!text || text.length < 300) return false;
+        const headerMatches = (text.match(/^#{1,3} .+/gm) || []).length;
+        return headerMatches >= 3;
+    }
+
+    /*
+     * Split the markdown response on headers and render each section
+     * as its own numbered card.
+     */
+    function renderDrillCards(text) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'session-plan-wrapper';
+
+        // Split on any line that starts with # (h1, h2, or h3)
+        // Keep the delimiter so we know where each section starts
+        const parts = text.split(/(?=^#{1,3} )/m);
+
+        let introText = '';
+        const sections = [];
+
+        parts.forEach(part => {
+            const trimmed = part.trim();
+            if (!trimmed) return;
+            if (/^#{1,3} /.test(trimmed)) {
+                sections.push(trimmed);
+            } else {
+                introText += trimmed + '\n\n';
+            }
+        });
+
+        // Render any intro text (e.g. session overview) as a plain bubble
+        if (introText.trim()) {
+            const intro = document.createElement('div');
+            intro.className = 'session-intro';
+            intro.innerHTML = marked.parse(introText.trim());
+            wrapper.appendChild(intro);
+        }
+
+        // Render each section as a numbered card
+        sections.forEach((section, i) => {
+            const row = document.createElement('div');
+            row.className = 'drill-row';
+
+            const num = document.createElement('div');
+            num.className = 'drill-number';
+            num.textContent = i + 1;
+
+            const card = document.createElement('div');
+            card.className = 'drill-card';
+
+            const inner = document.createElement('div');
+            inner.className = 'drill-card-inner';
+            inner.innerHTML = marked.parse(section);
+
+            card.appendChild(inner);
+            row.appendChild(num);
+            row.appendChild(card);
+            wrapper.appendChild(row);
+        });
+
+        appendAndScroll(wrapper);
     }
 
     function addUserMessage(text) {
